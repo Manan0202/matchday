@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum EventStatus {
+  UPCOMING
+  LIVE
+  FINISHED
+  CANCELLED
+}
+
+enum SeatStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+}
+
+model User {
+  id           String          @id @default(cuid())
+  email        String          @unique
+  passwordHash String
+  name         String
+  role         Role            @default(USER)
+  createdAt    DateTime        @default(now())
+  bookings     Booking[]
+  waitlist     WaitlistEntry[]
+}
+
+model Sport {
+  id     String  @id @default(cuid())
+  name   String  @unique
+  slug   String  @unique
+  teams  Team[]
+  events Event[]
+}
+
+model Team {
+  id         String  @id @default(cuid())
+  name       String
+  shortName  String
+  sport      Sport   @relation(fields: [sportId], references: [id])
+  sportId    String
+  homeEvents Event[] @relation("HomeTeam")
+  awayEvents Event[] @relation("AwayTeam")
+
+  @@unique([name, sportId])
+}
+
+model Venue {
+  id       String    @id @default(cuid())
+  name     String
+  city     String
+  capacity Int
+  events   Event[]
+  sections Section[]
+}
+
+// A physical seating section within a venue (e.g. "North Stand"),
+// reused as the seat map layout for every event held there.
+model Section {
+  id          String         @id @default(cuid())
+  venue       Venue          @relation(fields: [venueId], references: [id])
+  venueId     String
+  name        String
+  rows        Int
+  seatsPerRow Int
+  events      EventSection[]
+
+  @@unique([venueId, name])
+}
+
+// Per-event pricing for a venue section.
+model EventSection {
+  id        String  @id @default(cuid())
+  event     Event   @relation(fields: [eventId], references: [id])
+  eventId   String
+  section   Section @relation(fields: [sectionId], references: [id])
+  sectionId String
+  price     Float
+  seats     Seat[]
+
+  @@unique([eventId, sectionId])
+}
+
+model Event {
+  id         String          @id @default(cuid())
+  sport      Sport           @relation(fields: [sportId], references: [id])
+  sportId    String
+  league     String
+  homeTeam   Team            @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  homeTeamId String
+  awayTeam   Team            @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  awayTeamId String
+  venue      Venue           @relation(fields: [venueId], references: [id])
+  venueId    String
+  startTime  DateTime
+  status     EventStatus     @default(UPCOMING)
+  createdAt  DateTime        @default(now())
+  sections   EventSection[]
+  waitlist   WaitlistEntry[]
+}
+
+model Seat {
+  id             String        @id @default(cuid())
+  eventSection   EventSection  @relation(fields: [eventSectionId], references: [id])
+  eventSectionId String
+  row            Int
+  number         Int
+  status         SeatStatus    @default(AVAILABLE)
+  bookingSeats   BookingSeat[]
+
+  @@unique([eventSectionId, row, number])
+}
+
+model Booking {
+  id         String        @id @default(cuid())
+  user       User          @relation(fields: [userId], references: [id])
+  userId     String
+  status     BookingStatus @default(CONFIRMED)
+  totalPrice Float
+  createdAt  DateTime      @default(now())
+  seats      BookingSeat[]
+}
+
+model BookingSeat {
+  id        String  @id @default(cuid())
+  booking   Booking @relation(fields: [bookingId], references: [id])
+  bookingId String
+  seat      Seat    @relation(fields: [seatId], references: [id])
+  seatId    String
+
+  @@unique([seatId])
+}
+
+// A user joins the waitlist for an event (not a specific seat) once
+// it sells out; used to demonstrate the "last seat" race-condition scenario.
+model WaitlistEntry {
+  id        String   @id @default(cuid())
+  event     Event    @relation(fields: [eventId], references: [id])
+  eventId   String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  createdAt DateTime @default(now())
+
+  @@unique([eventId, userId])
+}
