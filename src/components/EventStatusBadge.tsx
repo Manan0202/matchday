@@ -89,7 +89,15 @@ export function EventStatusBadge({
     }
 
     return (
-        <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 tabular-nums">
+        <span
+            className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 tabular-nums"
+            // This text is intentionally time-sensitive: on a real deployment
+            // some drift between the server render and client hydration is
+            // unavoidable (network latency), so a one-tick mismatch here is
+            // expected and harmless — this is React's documented escape
+            // hatch for exactly that case, not a way to hide a real bug.
+            suppressHydrationWarning
+        >
             {now === null ? 'Upcoming' : formatCountdown(new Date(startTime).getTime() - now)}
         </span>
     )
