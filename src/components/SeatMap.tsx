@@ -68,18 +68,20 @@ export function SeatMap({
             ))}
 
             <div
-                className="sticky bottom-0 flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4 shadow-lg"
+                className="sticky bottom-0 flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4 shadow-lg transition-shadow"
                 data-testid="checkout-summary"
             >
                 <div>
                     <p className="text-sm text-slate-600">{selected.size} seat(s) selected</p>
-                    <p className="text-lg font-bold">${total.toFixed(2)}</p>
+                    <p key={total} className="animate-fade-in-up text-lg font-bold">
+                        ${total.toFixed(2)}
+                    </p>
                 </div>
                 <button
                     onClick={handleCheckout}
                     disabled={selected.size === 0}
                     data-testid="proceed-to-checkout"
-                    className="rounded bg-emerald-500 px-5 py-2.5 font-medium text-slate-950 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="rounded bg-emerald-500 px-5 py-2.5 font-medium text-slate-950 transition-transform duration-150 hover:bg-emerald-400 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                     Proceed to checkout
                 </button>
@@ -127,12 +129,12 @@ function SectionGrid({
                                     aria-pressed={isSelected}
                                     data-testid={`seat-${seat.id}`}
                                     data-seat-status={isSold ? 'SOLD' : isSelected ? 'SELECTED' : 'AVAILABLE'}
-                                    className={`flex h-7 w-7 items-center justify-center rounded text-[10px] font-medium transition ${
+                                    className={`flex h-7 w-7 items-center justify-center rounded text-[10px] font-medium transition-all duration-150 ${
                                         isSold
                                             ? 'cursor-not-allowed bg-slate-300 text-slate-500'
                                             : isSelected
-                                              ? 'bg-emerald-500 text-slate-950'
-                                              : 'border border-slate-300 bg-white text-slate-600 hover:border-emerald-400'
+                                              ? 'scale-105 bg-emerald-500 text-slate-950 hover:scale-110 active:scale-95'
+                                              : 'border border-slate-300 bg-white text-slate-600 hover:scale-110 hover:border-emerald-400 active:scale-95'
                                     }`}
                                 >
                                     {seat.number}

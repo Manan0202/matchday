@@ -78,7 +78,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
             <button
                 type="submit"
                 disabled={submitting}
-                className="rounded bg-emerald-500 px-4 py-2 font-medium text-slate-950 hover:bg-emerald-400 disabled:opacity-50"
+                className="rounded bg-emerald-500 px-4 py-2 font-medium text-slate-950 transition-transform duration-150 hover:bg-emerald-400 active:scale-95 disabled:opacity-50"
                 data-testid="submit-button"
             >
                 {mode === 'login' ? 'Log in' : 'Sign up'}

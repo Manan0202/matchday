@@ -1,20 +1,26 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 type Me = { id: string; name: string; role: 'USER' | 'ADMIN' } | null
 
 export function Nav() {
+    const pathname = usePathname()
     const [me, setMe] = useState<Me>(null)
     const [loaded, setLoaded] = useState(false)
 
     useEffect(() => {
+        // Re-check auth on every route change too, not just on mount — the Nav
+        // stays mounted across client-side navigation (App Router layouts
+        // persist), so without this it keeps showing stale logged-out state
+        // right after login/register redirects to another page.
         fetch('/api/me')
             .then((res) => (res.ok ? res.json() : null))
             .then((data) => setMe(data))
             .finally(() => setLoaded(true))
-    }, [])
+    }, [pathname])
 
     const handleLogout = async () => {
         await fetch('/api/auth/logout', { method: 'POST' })
@@ -56,7 +62,10 @@ export function Nav() {
                         </>
                     )}
                     {loaded && me && (
-                        <button onClick={handleLogout} className="hover:text-emerald-400">
+                        <button
+                            onClick={handleLogout}
+                            className="transition-transform duration-150 hover:text-emerald-400 active:scale-95"
+                        >
                             Log out ({me.name})
                         </button>
                     )}

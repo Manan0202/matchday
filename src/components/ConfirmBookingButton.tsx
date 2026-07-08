@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useToast } from '@/components/Toast'
 
 export function ConfirmBookingButton({
     eventId,
@@ -11,6 +12,7 @@ export function ConfirmBookingButton({
     seatIds: string[]
 }) {
     const router = useRouter()
+    const { showToast } = useToast()
     const [error, setError] = useState<string | null>(null)
     const [submitting, setSubmitting] = useState(false)
 
@@ -26,8 +28,10 @@ export function ConfirmBookingButton({
             const data = await res.json()
             if (!res.ok) {
                 setError(data.error ?? 'Something went wrong')
+                showToast(data.error ?? 'Something went wrong', 'error')
                 return
             }
+            showToast('Booking confirmed!', 'success')
             router.push(`/bookings?confirmed=${data.id}`)
         } finally {
             setSubmitting(false)
@@ -45,7 +49,7 @@ export function ConfirmBookingButton({
                 onClick={handleConfirm}
                 disabled={submitting}
                 data-testid="confirm-booking"
-                className="rounded bg-emerald-500 px-5 py-2.5 font-medium text-slate-950 hover:bg-emerald-400 disabled:opacity-50"
+                className="rounded bg-emerald-500 px-5 py-2.5 font-medium text-slate-950 transition-transform duration-150 hover:bg-emerald-400 active:scale-95 disabled:opacity-50"
             >
                 {submitting ? 'Confirming…' : 'Confirm booking'}
             </button>

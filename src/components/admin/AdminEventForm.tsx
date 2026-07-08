@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useToast } from '@/components/Toast'
 
 type Sport = { id: string; name: string }
 type Team = { id: string; name: string; sportId: string }
@@ -18,6 +19,7 @@ export function AdminEventForm({
     venues: Venue[]
 }) {
     const router = useRouter()
+    const { showToast } = useToast()
     const [sportId, setSportId] = useState(sports[0]?.id ?? '')
     const [league, setLeague] = useState('')
     const [homeTeamId, setHomeTeamId] = useState('')
@@ -73,8 +75,10 @@ export function AdminEventForm({
             const data = await res.json()
             if (!res.ok) {
                 setError(data.error ?? 'Something went wrong')
+                showToast(data.error ?? 'Something went wrong', 'error')
                 return
             }
+            showToast('Event created', 'success')
             router.push('/admin/events')
             router.refresh()
         } finally {
@@ -204,7 +208,7 @@ export function AdminEventForm({
             <button
                 type="submit"
                 disabled={submitting}
-                className="w-fit rounded bg-emerald-500 px-4 py-2 font-medium text-slate-950 hover:bg-emerald-400 disabled:opacity-50"
+                className="w-fit rounded bg-emerald-500 px-4 py-2 font-medium text-slate-950 transition-transform duration-150 hover:bg-emerald-400 active:scale-95 disabled:opacity-50"
             >
                 Create event
             </button>

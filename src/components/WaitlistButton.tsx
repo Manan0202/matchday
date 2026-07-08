@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useToast } from '@/components/Toast'
 
 export function WaitlistButton({ eventId }: { eventId: string }) {
     const router = useRouter()
+    const { showToast } = useToast()
     const [state, setState] = useState<'idle' | 'joined' | 'error'>('idle')
     const [submitting, setSubmitting] = useState(false)
 
@@ -17,6 +19,10 @@ export function WaitlistButton({ eventId }: { eventId: string }) {
                 return
             }
             setState(res.ok ? 'joined' : 'error')
+            showToast(
+                res.ok ? "You're on the waitlist!" : 'Something went wrong. Try again.',
+                res.ok ? 'success' : 'error'
+            )
         } finally {
             setSubmitting(false)
         }
@@ -25,7 +31,7 @@ export function WaitlistButton({ eventId }: { eventId: string }) {
     if (state === 'joined') {
         return (
             <div
-                className="rounded-lg border border-emerald-300 bg-emerald-50 p-4 text-emerald-800"
+                className="animate-fade-in-up rounded-lg border border-emerald-300 bg-emerald-50 p-4 text-emerald-800"
                 data-testid="waitlist-joined"
             >
                 You&apos;re on the waitlist — we&apos;ll notify you if a seat opens up.
@@ -40,7 +46,7 @@ export function WaitlistButton({ eventId }: { eventId: string }) {
                 onClick={handleJoin}
                 disabled={submitting}
                 data-testid="join-waitlist"
-                className="rounded bg-slate-900 px-4 py-2 font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+                className="rounded bg-slate-900 px-4 py-2 font-medium text-white transition-transform duration-150 hover:bg-slate-700 active:scale-95 disabled:opacity-50"
             >
                 Join waitlist
             </button>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useToast } from '@/components/Toast'
 
 type Sport = { id: string; name: string }
 type Team = { id: string; name: string; shortName: string; sport: Sport }
@@ -14,6 +15,7 @@ export function AdminTeamsClient({
     sports: Sport[]
 }) {
     const router = useRouter()
+    const { showToast } = useToast()
     const [name, setName] = useState('')
     const [shortName, setShortName] = useState('')
     const [sportId, setSportId] = useState(sports[0]?.id ?? '')
@@ -33,8 +35,10 @@ export function AdminTeamsClient({
             const data = await res.json()
             if (!res.ok) {
                 setError(data.error ?? 'Something went wrong')
+                showToast(data.error ?? 'Something went wrong', 'error')
                 return
             }
+            showToast(`Added ${name}`, 'success')
             setName('')
             setShortName('')
             router.refresh()
@@ -43,8 +47,9 @@ export function AdminTeamsClient({
         }
     }
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = async (id: string, teamName: string) => {
         await fetch(`/api/admin/teams/${id}`, { method: 'DELETE' })
+        showToast(`Deleted ${teamName}`, 'info')
         router.refresh()
     }
 
@@ -89,7 +94,7 @@ export function AdminTeamsClient({
                 <button
                     type="submit"
                     disabled={submitting}
-                    className="rounded bg-emerald-500 px-4 py-1.5 font-medium text-slate-950 hover:bg-emerald-400 disabled:opacity-50"
+                    className="rounded bg-emerald-500 px-4 py-1.5 font-medium text-slate-950 transition-transform duration-150 hover:bg-emerald-400 active:scale-95 disabled:opacity-50"
                 >
                     Add team
                 </button>
@@ -107,13 +112,13 @@ export function AdminTeamsClient({
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                     {teams.map((team) => (
-                        <tr key={team.id}>
+                        <tr key={team.id} className="transition-colors hover:bg-slate-50">
                             <td className="px-4 py-2">{team.name}</td>
                             <td className="px-4 py-2">{team.shortName}</td>
                             <td className="px-4 py-2">{team.sport.name}</td>
                             <td className="px-4 py-2 text-right">
                                 <button
-                                    onClick={() => handleDelete(team.id)}
+                                    onClick={() => handleDelete(team.id, team.name)}
                                     className="text-red-600 hover:underline"
                                 >
                                     Delete

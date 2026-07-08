@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useToast } from '@/components/Toast'
 
 type EventRow = {
     id: string
@@ -17,6 +18,7 @@ const STATUSES = ['UPCOMING', 'LIVE', 'FINISHED', 'CANCELLED']
 
 export function AdminEventsClient({ events }: { events: EventRow[] }) {
     const router = useRouter()
+    const { showToast } = useToast()
 
     const handleStatusChange = async (id: string, status: string) => {
         await fetch(`/api/admin/events/${id}`, {
@@ -24,11 +26,13 @@ export function AdminEventsClient({ events }: { events: EventRow[] }) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status }),
         })
+        showToast(`Status changed to ${status}`, 'success')
         router.refresh()
     }
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = async (id: string, matchLabel: string) => {
         await fetch(`/api/admin/events/${id}`, { method: 'DELETE' })
+        showToast(`Deleted ${matchLabel}`, 'info')
         router.refresh()
     }
 
@@ -46,7 +50,7 @@ export function AdminEventsClient({ events }: { events: EventRow[] }) {
             </thead>
             <tbody className="divide-y divide-slate-100">
                 {events.map((event) => (
-                    <tr key={event.id}>
+                    <tr key={event.id} className="transition-colors hover:bg-slate-50">
                         <td className="px-4 py-2 font-medium">
                             {event.homeTeam.shortName} vs {event.awayTeam.shortName}
                         </td>
@@ -75,7 +79,12 @@ export function AdminEventsClient({ events }: { events: EventRow[] }) {
                         </td>
                         <td className="px-4 py-2 text-right">
                             <button
-                                onClick={() => handleDelete(event.id)}
+                                onClick={() =>
+                                    handleDelete(
+                                        event.id,
+                                        `${event.homeTeam.shortName} vs ${event.awayTeam.shortName}`
+                                    )
+                                }
                                 className="text-red-600 hover:underline"
                             >
                                 Delete

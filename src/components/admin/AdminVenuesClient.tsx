@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useToast } from '@/components/Toast'
 
 type Section = { id: string; name: string; rows: number; seatsPerRow: number }
 type Venue = { id: string; name: string; city: string; capacity: number; sections: Section[] }
@@ -10,6 +11,7 @@ type DraftSection = { name: string; rows: string; seatsPerRow: string }
 
 export function AdminVenuesClient({ venues }: { venues: Venue[] }) {
     const router = useRouter()
+    const { showToast } = useToast()
     const [name, setName] = useState('')
     const [city, setCity] = useState('')
     const [capacity, setCapacity] = useState('')
@@ -51,8 +53,10 @@ export function AdminVenuesClient({ venues }: { venues: Venue[] }) {
             const data = await res.json()
             if (!res.ok) {
                 setError(data.error ?? 'Something went wrong')
+                showToast(data.error ?? 'Something went wrong', 'error')
                 return
             }
+            showToast(`Added ${name}`, 'success')
             setName('')
             setCity('')
             setCapacity('')
@@ -63,8 +67,9 @@ export function AdminVenuesClient({ venues }: { venues: Venue[] }) {
         }
     }
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = async (id: string, venueName: string) => {
         await fetch(`/api/admin/venues/${id}`, { method: 'DELETE' })
+        showToast(`Deleted ${venueName}`, 'info')
         router.refresh()
     }
 
@@ -163,7 +168,7 @@ export function AdminVenuesClient({ venues }: { venues: Venue[] }) {
                 <button
                     type="submit"
                     disabled={submitting}
-                    className="w-fit rounded bg-emerald-500 px-4 py-1.5 font-medium text-slate-950 hover:bg-emerald-400 disabled:opacity-50"
+                    className="w-fit rounded bg-emerald-500 px-4 py-1.5 font-medium text-slate-950 transition-transform duration-150 hover:bg-emerald-400 active:scale-95 disabled:opacity-50"
                 >
                     Add venue
                 </button>
@@ -174,7 +179,7 @@ export function AdminVenuesClient({ venues }: { venues: Venue[] }) {
                 {venues.map((venue) => (
                     <div
                         key={venue.id}
-                        className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4"
+                        className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4 transition-colors hover:bg-slate-50"
                     >
                         <div>
                             <p className="font-semibold">
@@ -186,7 +191,7 @@ export function AdminVenuesClient({ venues }: { venues: Venue[] }) {
                             </p>
                         </div>
                         <button
-                            onClick={() => handleDelete(venue.id)}
+                            onClick={() => handleDelete(venue.id, venue.name)}
                             className="text-sm text-red-600 hover:underline"
                         >
                             Delete
