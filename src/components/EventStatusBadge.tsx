@@ -41,7 +41,11 @@ export function EventStatusBadge({
     status: Status
     startTime: string
 }) {
-    const [now, setNow] = useState(() => Date.now())
+    // `now` starts null so the first render is identical on server and
+    // client (calling Date.now() during that shared render would drift by
+    // however long the network round-trip took, causing a hydration
+    // mismatch). The real clock only starts ticking after mount.
+    const [now, setNow] = useState<number | null>(null)
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     useEffect(() => {
@@ -52,7 +56,7 @@ export function EventStatusBadge({
             setNow(Date.now())
             timeoutRef.current = setTimeout(tick, nextTickDelay(msRemaining))
         }
-        timeoutRef.current = setTimeout(tick, nextTickDelay(new Date(startTime).getTime() - Date.now()))
+        tick()
 
         return () => {
             if (timeoutRef.current) clearTimeout(timeoutRef.current)
@@ -84,11 +88,9 @@ export function EventStatusBadge({
         )
     }
 
-    const msRemaining = new Date(startTime).getTime() - now
-
     return (
         <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 tabular-nums">
-            {formatCountdown(msRemaining)}
+            {now === null ? 'Upcoming' : formatCountdown(new Date(startTime).getTime() - now)}
         </span>
     )
 }

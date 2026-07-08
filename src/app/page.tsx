@@ -1,6 +1,10 @@
 import { prisma } from '@/lib/db'
 import { EventsBrowser } from '@/components/EventsBrowser'
 
+// Events change from admin actions and live seat bookings — must be
+// fetched fresh per request, not statically cached at build time.
+export const dynamic = 'force-dynamic'
+
 export default async function HomePage() {
     const [sports, events] = await Promise.all([
         prisma.sport.findMany({ orderBy: { name: 'asc' } }),
