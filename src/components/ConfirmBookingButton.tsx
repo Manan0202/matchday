@@ -49,7 +49,7 @@ export function ConfirmBookingButton({
                 onClick={handleConfirm}
                 disabled={submitting}
                 data-testid="confirm-booking"
-                className="rounded bg-emerald-500 px-5 py-2.5 font-medium text-slate-950 transition-transform duration-150 hover:bg-emerald-400 active:scale-95 disabled:opacity-50"
+                className="rounded bg-rose-600 px-5 py-2.5 font-medium text-white transition-transform duration-150 hover:bg-rose-500 active:scale-95 disabled:opacity-50"
             >
                 {submitting ? 'Confirming…' : 'Confirm booking'}
             </button>

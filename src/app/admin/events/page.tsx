@@ -14,7 +14,7 @@ export default async function AdminEventsPage() {
                 <h1 className="text-2xl font-bold">Events</h1>
                 <Link
                     href="/admin/events/new"
-                    className="rounded bg-emerald-500 px-4 py-2 text-sm font-medium text-slate-950 hover:bg-emerald-400"
+                    className="rounded bg-rose-600 px-4 py-2 text-sm font-medium text-white transition-transform duration-150 hover:bg-rose-500 active:scale-95"
                 >
                     New event
                 </Link>

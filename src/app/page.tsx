@@ -40,11 +40,17 @@ export default async function HomePage() {
     })
 
     return (
-        <div className="flex flex-col gap-6">
-            <div>
-                <h1 className="text-2xl font-bold">Upcoming & live matches</h1>
-                <p className="text-slate-600">
-                    Football, cricket, and basketball — book your seat.
+        <div className="flex flex-col gap-8">
+            <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-rose-600 via-rose-700 to-indigo-900 px-6 py-10 text-white shadow-lg sm:px-10 sm:py-14">
+                <p className="text-sm font-semibold tracking-wide text-rose-200 uppercase">
+                    Football · Cricket · Basketball
+                </p>
+                <h1 className="mt-2 max-w-lg text-3xl font-extrabold tracking-tight sm:text-4xl">
+                    Never miss a match day.
+                </h1>
+                <p className="mt-3 max-w-md text-rose-100">
+                    Book your seat for the biggest fixtures across the world&apos;s top leagues —
+                    live status, real seat maps, instant confirmation.
                 </p>
             </div>
             <EventsBrowser sports={sports} events={eventCards} />

@@ -17,6 +17,13 @@ type EventCard = {
     availableSeats: number
 }
 
+const SPORT_STYLE: Record<string, { gradient: string; icon: string }> = {
+    football: { gradient: 'from-blue-600 to-indigo-800', icon: '⚽' },
+    cricket: { gradient: 'from-amber-500 to-orange-700', icon: '🏏' },
+    basketball: { gradient: 'from-orange-500 to-red-700', icon: '🏀' },
+}
+const DEFAULT_SPORT_STYLE = { gradient: 'from-slate-600 to-slate-800', icon: '🏆' }
+
 export function EventsBrowser({
     sports,
     events,
@@ -52,7 +59,7 @@ export function EventsBrowser({
                 {sports.map((s) => (
                     <FilterButton
                         key={s.id}
-                        label={s.name}
+                        label={`${SPORT_STYLE[s.slug]?.icon ?? DEFAULT_SPORT_STYLE.icon} ${s.name}`}
                         active={sportSlug === s.slug}
                         onClick={() => selectSport(s.slug)}
                     />
@@ -79,43 +86,60 @@ export function EventsBrowser({
                 </div>
             )}
 
-            <div className="grid gap-4 sm:grid-cols-2">
-                {visibleEvents.map((event, index) => (
-                    <Link
-                        key={event.id}
-                        href={`/events/${event.id}`}
-                        style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
-                        className="animate-fade-in-up flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-sm"
-                    >
-                        <div className="flex items-center justify-between">
-                            <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                                {event.sport.name} · {event.league}
-                            </span>
-                            <EventStatusBadge status={event.status} startTime={event.startTime} />
-                        </div>
-                        <div className="text-lg font-semibold">
-                            {event.homeTeam.shortName} vs {event.awayTeam.shortName}
-                        </div>
-                        <div className="text-sm text-slate-600">
-                            {event.venue.name}, {event.venue.city}
-                        </div>
-                        <div className="text-sm text-slate-600">
-                            {new Date(event.startTime).toLocaleString('en-US', {
-                                dateStyle: 'medium',
-                                timeStyle: 'short',
-                            })}
-                        </div>
-                        <div className="mt-auto text-sm font-medium">
-                            {event.availableSeats === 0 ? (
-                                <span className="text-red-600">Sold out — join waitlist</span>
-                            ) : (
-                                <span className="text-emerald-600">
-                                    {event.availableSeats} seats available
+            <div className="grid gap-5 sm:grid-cols-2">
+                {visibleEvents.map((event, index) => {
+                    const style = SPORT_STYLE[event.sport.slug] ?? DEFAULT_SPORT_STYLE
+                    return (
+                        <Link
+                            key={event.id}
+                            href={`/events/${event.id}`}
+                            style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
+                            className="animate-fade-in-up group flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-150 hover:-translate-y-1 hover:shadow-xl active:translate-y-0 active:shadow-md"
+                        >
+                            <div
+                                className={`relative flex items-center justify-between bg-gradient-to-br ${style.gradient} px-4 py-3 text-white`}
+                            >
+                                <span className="text-xs font-semibold tracking-wide uppercase opacity-90">
+                                    {event.sport.name} · {event.league}
                                 </span>
-                            )}
-                        </div>
-                    </Link>
-                ))}
+                                <span className="text-2xl drop-shadow-sm">{style.icon}</span>
+                            </div>
+                            <div className="flex flex-1 flex-col gap-2 p-4">
+                                <div className="flex items-center justify-between gap-2">
+                                    <div className="text-lg font-bold">
+                                        {event.homeTeam.shortName}{' '}
+                                        <span className="font-normal text-slate-400">vs</span>{' '}
+                                        {event.awayTeam.shortName}
+                                    </div>
+                                    <EventStatusBadge status={event.status} startTime={event.startTime} />
+                                </div>
+                                <div className="text-sm text-slate-600">
+                                    {event.venue.name}, {event.venue.city}
+                                </div>
+                                <div className="text-sm text-slate-600">
+                                    {new Date(event.startTime).toLocaleString('en-US', {
+                                        dateStyle: 'medium',
+                                        timeStyle: 'short',
+                                    })}
+                                </div>
+                                <div className="mt-auto flex items-center justify-between pt-2">
+                                    {event.availableSeats === 0 ? (
+                                        <span className="text-sm font-semibold text-red-600">
+                                            Sold out — join waitlist
+                                        </span>
+                                    ) : (
+                                        <span className="text-sm font-semibold text-emerald-600">
+                                            {event.availableSeats} seats available
+                                        </span>
+                                    )}
+                                    <span className="text-sm font-semibold text-rose-600 opacity-0 transition-opacity group-hover:opacity-100">
+                                        Book now →
+                                    </span>
+                                </div>
+                            </div>
+                        </Link>
+                    )
+                })}
                 {visibleEvents.length === 0 && (
                     <p className="text-slate-600">No events match these filters.</p>
                 )}
@@ -141,8 +165,8 @@ function FilterButton({
             onClick={onClick}
             className={`rounded-full border px-3 py-1 transition-all duration-150 active:scale-95 ${subtle ? 'text-xs' : 'text-sm font-medium'} ${
                 active
-                    ? 'border-emerald-500 bg-emerald-500 text-white'
-                    : 'border-slate-300 bg-white text-slate-700 hover:border-emerald-400 hover:shadow-sm'
+                    ? 'border-rose-600 bg-rose-600 text-white'
+                    : 'border-slate-300 bg-white text-slate-700 hover:border-rose-400 hover:shadow-sm'
             }`}
         >
             {label}

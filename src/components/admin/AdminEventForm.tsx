@@ -208,7 +208,7 @@ export function AdminEventForm({
             <button
                 type="submit"
                 disabled={submitting}
-                className="w-fit rounded bg-emerald-500 px-4 py-2 font-medium text-slate-950 transition-transform duration-150 hover:bg-emerald-400 active:scale-95 disabled:opacity-50"
+                className="w-fit rounded bg-rose-600 px-4 py-2 font-medium text-white transition-transform duration-150 hover:bg-rose-500 active:scale-95 disabled:opacity-50"
             >
                 Create event
             </button>

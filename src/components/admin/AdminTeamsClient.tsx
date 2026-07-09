@@ -94,7 +94,7 @@ export function AdminTeamsClient({
                 <button
                     type="submit"
                     disabled={submitting}
-                    className="rounded bg-emerald-500 px-4 py-1.5 font-medium text-slate-950 transition-transform duration-150 hover:bg-emerald-400 active:scale-95 disabled:opacity-50"
+                    className="rounded bg-rose-600 px-4 py-1.5 font-medium text-white transition-transform duration-150 hover:bg-rose-500 active:scale-95 disabled:opacity-50"
                 >
                     Add team
                 </button>

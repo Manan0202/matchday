@@ -53,7 +53,7 @@ export function SeatMap({
         <div className="flex flex-col gap-6">
             <div className="flex flex-wrap gap-4 text-xs">
                 <Legend swatchClass="bg-white border border-slate-300" label="Available" />
-                <Legend swatchClass="bg-emerald-500" label="Selected" />
+                <Legend swatchClass="bg-rose-600" label="Selected" />
                 <Legend swatchClass="bg-slate-300" label="Sold" />
             </div>
 
@@ -81,7 +81,7 @@ export function SeatMap({
                     onClick={handleCheckout}
                     disabled={selected.size === 0}
                     data-testid="proceed-to-checkout"
-                    className="rounded bg-emerald-500 px-5 py-2.5 font-medium text-slate-950 transition-transform duration-150 hover:bg-emerald-400 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="rounded bg-rose-600 px-5 py-2.5 font-medium text-white transition-transform duration-150 hover:bg-rose-500 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                     Proceed to checkout
                 </button>
@@ -133,8 +133,8 @@ function SectionGrid({
                                         isSold
                                             ? 'cursor-not-allowed bg-slate-300 text-slate-500'
                                             : isSelected
-                                              ? 'scale-105 bg-emerald-500 text-slate-950 hover:scale-110 active:scale-95'
-                                              : 'border border-slate-300 bg-white text-slate-600 hover:scale-110 hover:border-emerald-400 active:scale-95'
+                                              ? 'scale-105 bg-rose-600 text-white hover:scale-110 active:scale-95'
+                                              : 'border border-slate-300 bg-white text-slate-600 hover:scale-110 hover:border-rose-400 active:scale-95'
                                     }`}
                                 >
                                     {seat.number}

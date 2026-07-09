@@ -29,33 +29,33 @@ export function Nav() {
     }
 
     return (
-        <nav className="border-b border-slate-800 bg-slate-950 text-slate-100">
+        <nav className="border-b border-rose-900/40 bg-slate-950 text-slate-100">
             <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-                <Link href="/" className="text-lg font-bold tracking-tight">
-                    MatchDay
+                <Link href="/" className="flex items-center gap-1.5 text-lg font-bold tracking-tight">
+                    Match<span className="text-rose-500">Day</span>
                 </Link>
                 <div className="flex items-center gap-4 text-sm">
-                    <Link href="/" className="hover:text-emerald-400">
+                    <Link href="/" className="transition-colors hover:text-rose-400">
                         Events
                     </Link>
                     {loaded && me && (
-                        <Link href="/bookings" className="hover:text-emerald-400">
+                        <Link href="/bookings" className="transition-colors hover:text-rose-400">
                             My Bookings
                         </Link>
                     )}
                     {loaded && me?.role === 'ADMIN' && (
-                        <Link href="/admin" className="hover:text-emerald-400">
+                        <Link href="/admin" className="transition-colors hover:text-rose-400">
                             Admin
                         </Link>
                     )}
                     {loaded && !me && (
                         <>
-                            <Link href="/login" className="hover:text-emerald-400">
+                            <Link href="/login" className="transition-colors hover:text-rose-400">
                                 Log in
                             </Link>
                             <Link
                                 href="/register"
-                                className="rounded bg-emerald-500 px-3 py-1.5 font-medium text-slate-950 hover:bg-emerald-400"
+                                className="rounded bg-rose-600 px-3 py-1.5 font-medium text-white transition-transform duration-150 hover:bg-rose-500 active:scale-95"
                             >
                                 Sign up
                             </Link>
@@ -64,7 +64,7 @@ export function Nav() {
                     {loaded && me && (
                         <button
                             onClick={handleLogout}
-                            className="transition-transform duration-150 hover:text-emerald-400 active:scale-95"
+                            className="transition-transform duration-150 hover:text-rose-400 active:scale-95"
                         >
                             Log out ({me.name})
                         </button>
