@@ -15,7 +15,7 @@ export function WaitlistButton({ eventId }: { eventId: string }) {
         try {
             const res = await fetch(`/api/events/${eventId}/waitlist`, { method: 'POST' })
             if (res.status === 401) {
-                router.push(`/login?redirectTo=/events/${eventId}`)
+                router.push(`/login?redirectTo=${encodeURIComponent(`/events/${eventId}`)}`)
                 return
             }
             setState(res.ok ? 'joined' : 'error')

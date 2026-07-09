@@ -18,7 +18,8 @@ export default async function CheckoutPage({
 
     const user = await getCurrentUser()
     if (!user) {
-        redirect(`/login?redirectTo=/checkout?event=${eventId}&seats=${seats}`)
+        const target = `/checkout?event=${eventId}&seats=${seats}`
+        redirect(`/login?redirectTo=${encodeURIComponent(target)}`)
     }
 
     const event = await prisma.event.findUnique({
