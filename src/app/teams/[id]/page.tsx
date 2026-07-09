@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { sportStyleFor } from '@/lib/sportStyle'
 import { EventStatusBadge } from '@/components/EventStatusBadge'
+import { FollowButton } from '@/components/FollowButton'
+import { getSession } from '@/lib/auth'
 
 export default async function TeamDetailPage({
     params,
@@ -16,6 +18,13 @@ export default async function TeamDetailPage({
         include: { sport: true },
     })
     if (!team) notFound()
+
+    const session = await getSession()
+    const existingFavorite = session
+        ? await prisma.favorite.findUnique({
+              where: { userId_teamId: { userId: session.userId, teamId: id } },
+          })
+        : null
 
     const events = await prisma.event.findMany({
         where: { OR: [{ homeTeamId: id }, { awayTeamId: id }] },
@@ -38,12 +47,17 @@ export default async function TeamDetailPage({
                 <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white/20 text-2xl font-extrabold">
                     {team.shortName}
                 </span>
-                <div>
+                <div className="flex-1">
                     <p className="text-sm font-semibold tracking-wide uppercase opacity-90">
                         {style.icon} {team.sport.name}
                     </p>
                     <h1 className="text-2xl font-extrabold tracking-tight">{team.name}</h1>
                 </div>
+                <FollowButton
+                    teamId={team.id}
+                    initialFollowing={!!existingFavorite}
+                    loggedIn={!!session}
+                />
             </div>
 
             <FixtureList title="Upcoming & live" events={upcoming} emptyText="No upcoming fixtures." />

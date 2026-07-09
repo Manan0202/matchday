@@ -36,6 +36,7 @@ async function main() {
     await prisma.bookingSeat.deleteMany()
     await prisma.booking.deleteMany()
     await prisma.waitlistEntry.deleteMany()
+    await prisma.favorite.deleteMany()
     await prisma.seat.deleteMany()
     await prisma.eventSection.deleteMany()
     await prisma.event.deleteMany()
@@ -197,13 +198,22 @@ async function main() {
             passwordHash,
         },
     })
-    await prisma.user.create({
+    const fan = await prisma.user.create({
         data: {
             email: 'fan@matchday.dev',
             name: 'Sample Fan',
             role: 'USER',
             passwordHash,
         },
+    })
+
+    // Give the demo fan a couple of favorites so "Your Teams" has content
+    // to show immediately.
+    await prisma.favorite.createMany({
+        data: [
+            { userId: fan.id, teamId: team(fb, 'ARS') },
+            { userId: fan.id, teamId: team(cr, 'MI') },
+        ],
     })
 
     console.log(`Seed complete: ${eventSeeds.length} events, ${fb.size + cr.size + bb.size} teams, 6 venues.`)

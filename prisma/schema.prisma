@@ -43,6 +43,7 @@ model User {
   createdAt    DateTime        @default(now())
   bookings     Booking[]
   waitlist     WaitlistEntry[]
+  favorites    Favorite[]
 }
 
 model Sport {
@@ -61,8 +62,21 @@ model Team {
   sportId    String
   homeEvents Event[] @relation("HomeTeam")
   awayEvents Event[] @relation("AwayTeam")
+  favoritedBy Favorite[]
 
   @@unique([name, sportId])
+}
+
+// A user following a team, for the personalized "Your Teams" home feed.
+model Favorite {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  team      Team     @relation(fields: [teamId], references: [id])
+  teamId    String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, teamId])
 }
 
 model Venue {

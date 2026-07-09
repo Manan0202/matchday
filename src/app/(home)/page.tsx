@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/db'
+import { getSession } from '@/lib/auth'
 import { EventsBrowser } from '@/components/EventsBrowser'
 import { TrendingStrip } from '@/components/TrendingStrip'
+import { YourTeamsSection } from '@/components/YourTeamsSection'
 import { HowItWorks } from '@/components/HowItWorks'
 
 // Events change from admin actions and live seat bookings — must be
@@ -58,6 +60,43 @@ export default async function HomePage() {
         .sort((a, b) => (a.status === 'LIVE' ? -1 : 1) - (b.status === 'LIVE' ? -1 : 1))
         .slice(0, 6)
 
+    const session = await getSession()
+    let yourTeamsEvents: Array<{
+        id: string
+        league: string
+        status: 'UPCOMING' | 'LIVE' | 'FINISHED' | 'CANCELLED'
+        startTime: string
+        sport: { slug: string }
+        homeTeam: { shortName: string }
+        awayTeam: { shortName: string }
+        followedTeamName: string
+    }> = []
+    if (session) {
+        const favorites = await prisma.favorite.findMany({
+            where: { userId: session.userId },
+            include: { team: true },
+        })
+        const favTeamNameById = new Map(favorites.map((f) => [f.teamId, f.team.name]))
+        yourTeamsEvents = events
+            .filter(
+                (e) =>
+                    (e.status === 'UPCOMING' || e.status === 'LIVE') &&
+                    (favTeamNameById.has(e.homeTeamId) || favTeamNameById.has(e.awayTeamId))
+            )
+            .map((e) => ({
+                id: e.id,
+                league: e.league,
+                status: e.status,
+                startTime: e.startTime.toISOString(),
+                sport: { slug: e.sport.slug },
+                homeTeam: { shortName: e.homeTeam.shortName },
+                awayTeam: { shortName: e.awayTeam.shortName },
+                followedTeamName:
+                    favTeamNameById.get(e.homeTeamId) ?? favTeamNameById.get(e.awayTeamId)!,
+            }))
+            .slice(0, 4)
+    }
+
     return (
         <div className="flex flex-col gap-8">
             <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-rose-600 via-rose-700 to-indigo-900 px-6 py-10 text-white shadow-lg sm:px-10 sm:py-14">
@@ -72,6 +111,7 @@ export default async function HomePage() {
                     live status, real seat maps, instant confirmation.
                 </p>
             </div>
+            <YourTeamsSection events={yourTeamsEvents} />
             <TrendingStrip events={trending} />
             <EventsBrowser sports={sports} events={eventCards} />
             <HowItWorks />
