@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { getCurrentUser } from '@/lib/auth'
 import { ConfirmBookingButton } from '@/components/ConfirmBookingButton'
+import { calculatePricing } from '@/lib/pricing'
 
 export default async function CheckoutPage({
     searchParams,
@@ -45,7 +46,7 @@ export default async function CheckoutPage({
             }))
     )
 
-    const total = selectedSeats.reduce((sum, seat) => sum + seat.price, 0)
+    const pricing = calculatePricing(selectedSeats.map((seat) => seat.price))
     const anyUnavailable = selectedSeats.some((seat) => !seat.available)
 
     return (
@@ -71,9 +72,23 @@ export default async function CheckoutPage({
                         </li>
                     ))}
                 </ul>
-                <div className="mt-3 flex justify-between border-t border-slate-200 pt-3 font-bold">
-                    <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                <div className="mt-3 flex flex-col gap-1 border-t border-slate-200 pt-3">
+                    {pricing.discountApplied && (
+                        <>
+                            <div className="flex justify-between text-sm text-slate-600">
+                                <span>Subtotal</span>
+                                <span>${pricing.subtotal.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between text-sm text-emerald-600">
+                                <span>Group discount (10%, {pricing.seatCount} seats)</span>
+                                <span>-${pricing.discountAmount.toFixed(2)}</span>
+                            </div>
+                        </>
+                    )}
+                    <div className="flex justify-between font-bold">
+                        <span>Total</span>
+                        <span>${pricing.total.toFixed(2)}</span>
+                    </div>
                 </div>
             </div>
 

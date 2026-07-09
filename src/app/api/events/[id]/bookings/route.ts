@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
 import { parseJsonBody } from '@/lib/http'
+import { calculatePricing } from '@/lib/pricing'
 
 class BookingError extends Error {
     constructor(
@@ -40,9 +41,8 @@ export async function POST(
                 throw new BookingError('One or more seats do not belong to this event', 400)
             }
 
-            const totalPrice = seats.reduce(
-                (sum, seat) => sum + seat.eventSection.price,
-                0
+            const { total: totalPrice } = calculatePricing(
+                seats.map((seat) => seat.eventSection.price)
             )
 
             // Conditional update: only rows still AVAILABLE flip to SOLD. If another

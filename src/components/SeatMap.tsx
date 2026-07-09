@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { calculatePricing, GROUP_DISCOUNT_MIN_SEATS } from '@/lib/pricing'
 
 type Seat = { id: string; row: number; number: number; status: 'AVAILABLE' | 'RESERVED' | 'SOLD' }
 type SectionData = { id: string; name: string; price: number; seats: Seat[] }
@@ -39,9 +40,8 @@ export function SeatMap({
         })
     }
 
-    const total = Array.from(selected).reduce(
-        (sum, seatId) => sum + (priceBySeatId.get(seatId) ?? 0),
-        0
+    const pricing = calculatePricing(
+        Array.from(selected).map((seatId) => priceBySeatId.get(seatId) ?? 0)
     )
 
     const handleCheckout = () => {
@@ -72,9 +72,27 @@ export function SeatMap({
                 data-testid="checkout-summary"
             >
                 <div>
-                    <p className="text-sm text-slate-600">{selected.size} seat(s) selected</p>
-                    <p key={total} className="animate-fade-in-up text-lg font-bold">
-                        ${total.toFixed(2)}
+                    <p className="text-sm text-slate-600">
+                        {selected.size} seat(s) selected
+                        {!pricing.discountApplied && selected.size > 0 && (
+                            <span className="text-emerald-600">
+                                {' '}
+                                · add {GROUP_DISCOUNT_MIN_SEATS - selected.size} more for 10% off
+                            </span>
+                        )}
+                    </p>
+                    {pricing.discountApplied && (
+                        <p className="text-sm text-slate-500 line-through">
+                            ${pricing.subtotal.toFixed(2)}
+                        </p>
+                    )}
+                    <p key={pricing.total} className="animate-fade-in-up text-lg font-bold">
+                        ${pricing.total.toFixed(2)}
+                        {pricing.discountApplied && (
+                            <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                                10% group discount
+                            </span>
+                        )}
                     </p>
                 </div>
                 <button
