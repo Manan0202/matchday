@@ -38,6 +38,9 @@ export function Nav() {
                     <Link href="/" className="transition-colors hover:text-rose-400">
                         Events
                     </Link>
+                    <Link href="/teams" className="transition-colors hover:text-rose-400">
+                        Teams
+                    </Link>
                     {loaded && me && (
                         <Link href="/bookings" className="transition-colors hover:text-rose-400">
                             My Bookings

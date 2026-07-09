@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { requireAdminSession } from '@/lib/auth'
-import { parseJsonBody } from '@/lib/http'
-import { Prisma } from '@/generated/prisma'
+import { parseJsonBody, isPrismaErrorCode } from '@/lib/http'
 
 export async function GET() {
     const teams = await prisma.team.findMany({
@@ -37,7 +36,7 @@ export async function POST(request: NextRequest) {
         const team = await prisma.team.create({ data: { name, shortName, sportId } })
         return NextResponse.json(team, { status: 201 })
     } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        if (isPrismaErrorCode(error, 'P2002')) {
             return NextResponse.json(
                 { error: 'A team with this name already exists for this sport' },
                 { status: 409 }

@@ -1,11 +1,17 @@
 import { prisma } from '@/lib/db'
 import { EventsBrowser } from '@/components/EventsBrowser'
+import { TrendingStrip } from '@/components/TrendingStrip'
+import { HowItWorks } from '@/components/HowItWorks'
 
 // Events change from admin actions and live seat bookings — must be
 // fetched fresh per request, not statically cached at build time.
 export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
+    // This route is force-dynamic (see above) specifically so "trending"
+    // can be computed per-request against the real current time.
+    // eslint-disable-next-line react-hooks/purity
+    const now = Date.now()
     const [sports, events] = await Promise.all([
         prisma.sport.findMany({ orderBy: { name: 'asc' } }),
         prisma.event.findMany({
@@ -39,6 +45,19 @@ export default async function HomePage() {
         }
     })
 
+    // Trending = live right now, or starting soon — the fixtures worth
+    // surfacing before someone scrolls the full grid.
+    const TWO_DAYS_MS = 48 * 60 * 60 * 1000
+    const trending = eventCards
+        .filter(
+            (e) =>
+                e.status === 'LIVE' ||
+                (e.status === 'UPCOMING' &&
+                    new Date(e.startTime).getTime() - now < TWO_DAYS_MS)
+        )
+        .sort((a, b) => (a.status === 'LIVE' ? -1 : 1) - (b.status === 'LIVE' ? -1 : 1))
+        .slice(0, 6)
+
     return (
         <div className="flex flex-col gap-8">
             <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-rose-600 via-rose-700 to-indigo-900 px-6 py-10 text-white shadow-lg sm:px-10 sm:py-14">
@@ -53,7 +72,9 @@ export default async function HomePage() {
                     live status, real seat maps, instant confirmation.
                 </p>
             </div>
+            <TrendingStrip events={trending} />
             <EventsBrowser sports={sports} events={eventCards} />
+            <HowItWorks />
         </div>
     )
 }

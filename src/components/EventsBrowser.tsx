@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { EventStatusBadge } from '@/components/EventStatusBadge'
+import { sportStyleFor } from '@/lib/sportStyle'
 
 type Sport = { id: string; name: string; slug: string }
 type EventCard = {
@@ -16,13 +17,6 @@ type EventCard = {
     venue: { name: string; city: string }
     availableSeats: number
 }
-
-const SPORT_STYLE: Record<string, { gradient: string; icon: string }> = {
-    football: { gradient: 'from-blue-600 to-indigo-800', icon: '⚽' },
-    cricket: { gradient: 'from-amber-500 to-orange-700', icon: '🏏' },
-    basketball: { gradient: 'from-orange-500 to-red-700', icon: '🏀' },
-}
-const DEFAULT_SPORT_STYLE = { gradient: 'from-slate-600 to-slate-800', icon: '🏆' }
 
 export function EventsBrowser({
     sports,
@@ -59,7 +53,7 @@ export function EventsBrowser({
                 {sports.map((s) => (
                     <FilterButton
                         key={s.id}
-                        label={`${SPORT_STYLE[s.slug]?.icon ?? DEFAULT_SPORT_STYLE.icon} ${s.name}`}
+                        label={`${sportStyleFor(s.slug).icon} ${s.name}`}
                         active={sportSlug === s.slug}
                         onClick={() => selectSport(s.slug)}
                     />
@@ -88,7 +82,7 @@ export function EventsBrowser({
 
             <div className="grid gap-5 sm:grid-cols-2">
                 {visibleEvents.map((event, index) => {
-                    const style = SPORT_STYLE[event.sport.slug] ?? DEFAULT_SPORT_STYLE
+                    const style = sportStyleFor(event.sport.slug)
                     return (
                         <Link
                             key={event.id}

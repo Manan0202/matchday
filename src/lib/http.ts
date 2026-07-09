@@ -13,3 +13,14 @@ export async function parseJsonBody<T>(request: NextRequest): Promise<ParsedBody
         }
     }
 }
+
+// Duck-type the Prisma error code instead of `instanceof
+// Prisma.PrismaClientKnownRequestError` — Next.js can bundle the generated
+// Prisma client as separate module instances per route, which silently
+// breaks that instanceof check even though the thrown error's shape (and
+// its `code`) is identical. Checking `.code` directly is robust to that.
+export const isPrismaErrorCode = (error: unknown, code: string): boolean =>
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    (error as { code?: unknown }).code === code

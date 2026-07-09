@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { requireAdminSession } from '@/lib/auth'
-import { parseJsonBody } from '@/lib/http'
-import { Prisma } from '@/generated/prisma'
+import { parseJsonBody, isPrismaErrorCode } from '@/lib/http'
 
 export async function GET() {
     const venues = await prisma.venue.findMany({
@@ -62,7 +61,7 @@ export async function POST(request: NextRequest) {
         })
         return NextResponse.json(venue, { status: 201 })
     } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        if (isPrismaErrorCode(error, 'P2002')) {
             return NextResponse.json(
                 { error: 'A section with this name already exists in this venue' },
                 { status: 409 }
